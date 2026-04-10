@@ -123,6 +123,22 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
 .data-table strong{font-weight:600}
 
 /* ── Data Note ── */
+/* ── AI Query ── */
+.ai-section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;margin-top:20px}
+.ai-section h3{font-size:15px;margin-bottom:6px}
+.ai-powered{font-size:12px;color:var(--muted);margin-bottom:14px}
+.ai-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.ai-chip{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;cursor:pointer;transition:all .15s;color:var(--muted)}
+.ai-chip:hover{border-color:var(--accent);color:var(--text)}
+.ai-input-row{display:flex;gap:10px}
+.ai-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text)}
+.ai-input-row input:focus{outline:none;border-color:var(--accent)}
+.ai-input-row button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap}
+.ai-input-row button:hover{background:var(--accent2)}
+.ai-response{margin-top:14px;padding:16px;background:var(--surface);border-radius:8px;font-size:13px;line-height:1.7;display:none;white-space:pre-wrap;word-wrap:break-word}
+.ai-response strong{color:var(--accent2)}
+.ai-response .ai-loading{color:var(--muted);font-style:italic}
+
 .data-note{background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.25);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;font-size:12px;color:var(--orange);line-height:1.5}
 
 /* ── Sources bar ── */
@@ -180,6 +196,8 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
     <div class="sb-item" data-section="sec-channels"><span class="icon">&#128640;</span> Channel Performance</div>
     <div class="sb-item" data-section="sec-styles"><span class="icon">&#128519;</span> Product Analytics</div>
     <div class="sb-item" data-section="sec-strategic"><span class="icon">&#128161;</span> Strategic Insights</div>
+    <div class="sb-section">Tools</div>
+    <div class="sb-item" data-section="sec-aiquery"><span class="icon">&#129302;</span> AI Query</div>
   </div>
   <div class="sb-bottom">
     <div class="theme-toggle" onclick="toggleTheme()">
@@ -432,6 +450,31 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
         <tbody id="channels-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;"><span class="loading-spinner"></span> Loading...</td></tr></tbody>
       </table>
     </div>
+
+    <h3 style="margin-top:32px;margin-bottom:4px;font-size:18px;">Order Types<span class="badge-live" style="margin-left:8px;">LIVE</span></h3>
+    <div class="sub" style="margin-bottom:16px;">BigQuery &middot; Breakdown by OrderType field</div>
+
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-title">Revenue by Order Type</div>
+        <div class="panel-sub">Top 10 order types by revenue</div>
+        <div style="position:relative;height:250px;"><canvas id="orderTypesRevenueChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Invoice Distribution by Order Type</div>
+        <div class="panel-sub">Count of invoices</div>
+        <div style="position:relative;height:250px;"><canvas id="orderTypesInvoiceChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">All Order Types</div>
+      <div class="panel-sub">From BigQuery Extract 4</div>
+      <table class="data-table" id="ordertypes-table">
+        <thead><tr><th>Order Type</th><th>Customers</th><th>Invoices</th><th>Revenue</th><th>Avg Invoice</th></tr></thead>
+        <tbody id="ordertypes-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;"><span class="loading-spinner"></span> Loading...</td></tr></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════ -->
@@ -510,6 +553,51 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- AI QUERY -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="section" id="sec-aiquery">
+    <div class="section-head">
+      <div>
+        <h2>AI Query</h2>
+        <div class="sub">Ask anything about your marketing data</div>
+      </div>
+    </div>
+
+    <div class="ai-section">
+      <h3>Ask a question</h3>
+      <p class="ai-powered">Powered by Claude &middot; queries your live dashboard data</p>
+      <div class="ai-chips">
+        <div class="ai-chip" onclick="document.getElementById('aiInput').value=this.textContent">Top revenue channels this month</div>
+        <div class="ai-chip" onclick="document.getElementById('aiInput').value=this.textContent">Which order types generate the most revenue?</div>
+        <div class="ai-chip" onclick="document.getElementById('aiInput').value=this.textContent">Customer purchasing patterns summary</div>
+        <div class="ai-chip" onclick="document.getElementById('aiInput').value=this.textContent">Best performing styles by channel</div>
+        <div class="ai-chip" onclick="document.getElementById('aiInput').value=this.textContent">Revenue forecast next quarter</div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="aiInput" placeholder="e.g. Which channel has the best average invoice value?" onkeydown="if(event.key==='Enter')runAiQuery()">
+        <button onclick="runAiQuery()">Analyze</button>
+      </div>
+      <div id="aiResponse" class="ai-response"></div>
+    </div>
+
+    <div class="panel" style="margin-top:20px;">
+      <div class="panel-title">Data Summary</div>
+      <div class="panel-sub">What the AI can see</div>
+      <div id="aiDataSummary" style="font-size:13px;color:var(--muted);padding:8px 0;">Loading data summary...</div>
+    </div>
+
+    <div class="ai-section" style="margin-top:20px;">
+      <h3>API Key</h3>
+      <p class="ai-powered">Enter your Anthropic API key to enable AI queries. Key is stored in memory only — never saved.</p>
+      <div class="ai-input-row">
+        <input type="password" id="aiApiKey" placeholder="sk-ant-..." style="font-family:monospace;">
+        <button onclick="saveAiKey()">Save Key</button>
+      </div>
+      <div id="aiKeyStatus" style="font-size:12px;margin-top:8px;color:var(--muted);"></div>
+    </div>
+  </div>
+
   <!-- Data Note -->
   <div class="data-note">
     <strong>Live data sources:</strong> Shopify Orders, Customers, Products, and Abandoned Checkouts are fetched live from Google Sheets on every page load. Klaviyo campaign data updates automatically when new campaigns are sent. BigQuery extracts (Channel Performance, Product Analytics, Strategic Insights) are updated daily from the data warehouse.
@@ -553,7 +641,7 @@ function updateChartTheme() {
   var gridColor = isLight ? '#e5e7eb' : '#2e3247';
   var tickColor = isLight ? '#6b7280' : '#8a8fa8';
   Chart.defaults.color = tickColor;
-  [revenueChart, trafficChart, gscChart, pagesChart, channelsRevenueChart, channelsInvoiceChart, stylesRevenueChart, strategicRevenueChart, strategicInvoiceChart].forEach(function(c) {
+  [revenueChart, trafficChart, gscChart, pagesChart, channelsRevenueChart, channelsInvoiceChart, orderTypesRevenueChart, orderTypesInvoiceChart, stylesRevenueChart, strategicRevenueChart, strategicInvoiceChart].forEach(function(c) {
     if (!c) return;
     Object.values(c.options.scales || {}).forEach(function(s) {
       if (s.grid) s.grid.color = gridColor;
@@ -590,7 +678,8 @@ const SHEETS = {
   gsc:        'GSC_Daily',
   channels:   'Extract 1',
   styles:     'Extract 2',
-  executive:  'Extract 3'
+  executive:  'Extract 3',
+  ordertypes: 'Extract 4'
 };
 
 // =====================================================
@@ -656,7 +745,7 @@ var revenueChart = new Chart(document.getElementById('revenueChart').getContext(
   data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], backgroundColor: accent, borderRadius: 4 }] },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
     scales: { x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 9 } } },
-              y: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v; } } } } }
+              y: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } } } }
 });
 
 var countryChart = new Chart(document.getElementById('countryChart').getContext('2d'), {
@@ -710,10 +799,25 @@ var channelsRevenueChart = new Chart(document.getElementById('channelsRevenueCha
   type: 'bar',
   data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], backgroundColor: accent, borderRadius: 4 }] },
   options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v; } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
+    scales: { x: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
 });
 
 var channelsInvoiceChart = new Chart(document.getElementById('channelsInvoiceChart').getContext('2d'), {
+  type: 'doughnut',
+  data: { labels: ['Loading...'], datasets: [{ data: [1], backgroundColor: [lgray], borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '62%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
+});
+
+// Order Types Charts
+var orderTypesRevenueChart = new Chart(document.getElementById('orderTypesRevenueChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], backgroundColor: green, borderRadius: 4 }] },
+  options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { x: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } } }
+});
+
+var orderTypesInvoiceChart = new Chart(document.getElementById('orderTypesInvoiceChart').getContext('2d'), {
   type: 'doughnut',
   data: { labels: ['Loading...'], datasets: [{ data: [1], backgroundColor: [lgray], borderWidth: 0 }] },
   options: { responsive: true, maintainAspectRatio: false, cutout: '62%',
@@ -725,7 +829,7 @@ var stylesRevenueChart = new Chart(document.getElementById('stylesRevenueChart')
   type: 'bar',
   data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], backgroundColor: green, borderRadius: 4 }] },
   options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-    scales: { x: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v; } } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
+    scales: { x: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } }, y: { grid: { display: false }, ticks: { font: { size: 9 } } } } }
 });
 
 // Strategic Insights Charts
@@ -733,7 +837,7 @@ var strategicRevenueChart = new Chart(document.getElementById('strategicRevenueC
   type: 'line',
   data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], borderColor: accent, backgroundColor: accent+'18', borderWidth: 2, pointRadius: 3, tension: .35, fill: true }] },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } },
-    scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 10 } } }, y: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v; } } } } }
+    scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 10 } } }, y: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } } } }
 });
 
 var strategicInvoiceChart = new Chart(document.getElementById('strategicInvoiceChart').getContext('2d'), {
@@ -756,11 +860,14 @@ function toDate(str) {
 }
 
 // =====================================================
+// ── Currency formatter ──
+function fmtUSD(n) { return parseFloat(n || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
 // MAIN DATA LOAD
 // =====================================================
 var allOrders = [], allCustomers = [], allAbandoned = [], allProducts = [], allKlaviyo = [];
 var allGA4 = [], allGSC = [];
-var allChannels = [], allStyles = [], allExecutive = [];
+var allChannels = [], allStyles = [], allExecutive = [], allOrderTypes = [];
 
 async function loadAllData() {
   document.getElementById('lastUpdated').textContent = 'Fetching data...';
@@ -775,7 +882,8 @@ async function loadAllData() {
     fetchSheet(SHEETS.gsc),
     fetchSheet(SHEETS.channels),
     fetchSheet(SHEETS.styles),
-    fetchSheet(SHEETS.executive)
+    fetchSheet(SHEETS.executive),
+    fetchSheet(SHEETS.ordertypes)
   ]);
 
   allOrders = results[0] || [];
@@ -788,8 +896,9 @@ async function loadAllData() {
   allChannels = results[7] || [];
   allStyles = results[8] || [];
   allExecutive = results[9] || [];
+  allOrderTypes = results[10] || [];
 
-  // Update banner with live feed count (now out of 10)
+  // Update banner with live feed count (now out of 11)
   var liveCount = 0;
   if (allOrders.length > 0) liveCount++;
   if (allCustomers.length > 0) liveCount++;
@@ -801,7 +910,8 @@ async function loadAllData() {
   if (allChannels.length > 0) liveCount++;
   if (allStyles.length > 0) liveCount++;
   if (allExecutive.length > 0) liveCount++;
-  document.getElementById('bannerStatus').textContent = 'Live \u2014 Google Sheets connected (' + liveCount + '/10 feeds active)';
+  if (allOrderTypes.length > 0) liveCount++;
+  document.getElementById('bannerStatus').textContent = 'Live \u2014 Google Sheets connected (' + liveCount + '/11 feeds active)';
 
   setupDateRange();
   applyFilter();
@@ -854,9 +964,11 @@ function applyFilter() {
   renderGA4(filteredGA4);
   renderGSC(filteredGSC);
   renderChannels();
+  renderOrderTypes();
   renderStyles();
   renderStrategic();
   renderHighlights(filteredOrders, filteredAbandoned);
+  updateAiDataSummary();
 }
 
 // =====================================================
@@ -872,7 +984,7 @@ function renderShopify(orders, abandoned) {
   document.getElementById('kpi-revenue-sub').textContent = totalOrders > 0 ? 'Period total' : 'No orders in period';
   document.getElementById('kpi-orders').textContent = totalOrders.toLocaleString();
   document.getElementById('kpi-orders-sub').textContent = totalOrders === 1 ? '1 order' : totalOrders + ' orders';
-  document.getElementById('kpi-aov').textContent = aov > 0 ? '$' + aov.toFixed(2) : '\u2014';
+  document.getElementById('kpi-aov').textContent = aov > 0 ? '$' + fmtUSD(aov) : '\u2014';
   document.getElementById('kpi-aov-sub').textContent = aov > 0 ? 'Average order value' : 'N/A';
   document.getElementById('kpi-abandoned').textContent = totalAbandoned.toLocaleString();
   document.getElementById('kpi-abandoned-sub').textContent = totalAbandoned === 1 ? '1 abandoned checkout' : totalAbandoned + ' abandoned checkouts';
@@ -926,7 +1038,7 @@ function renderCustomers() {
   tbody.innerHTML = sorted.slice(0, 10).map(function(c) {
     return '<tr><td><strong>' + (c['First Name'] || '') + ' ' + (c['Last Name'] || '') + '</strong></td>' +
       '<td>' + (c['Orders Count'] || '0') + '</td>' +
-      '<td>$' + parseFloat(c['Total Spent'] || 0).toFixed(2) + '</td>' +
+      '<td>$' + fmtUSD(c['Total Spent']) + '</td>' +
       '<td>' + (c['City'] || '\u2014') + '</td>' +
       '<td>' + (c['Country'] || '\u2014') + '</td></tr>';
   }).join('');
@@ -978,7 +1090,7 @@ function renderKlaviyo(rows) {
   document.getElementById('kpi-openrate-sub').textContent = 'Average';
   document.getElementById('kpi-clickrate').textContent = (avgClick * 100).toFixed(1) + '%';
   document.getElementById('kpi-clickrate-sub').textContent = 'Average';
-  document.getElementById('kpi-emailrev').textContent = '$' + totalRev.toFixed(2);
+  document.getElementById('kpi-emailrev').textContent = '$' + fmtUSD(totalRev);
   document.getElementById('kpi-emailrev-sub').textContent = 'Total attributed';
 
   tbody.innerHTML = validRows.map(function(r) {
@@ -987,7 +1099,7 @@ function renderKlaviyo(rows) {
       '<td>' + (r['Recipients'] || '\u2014') + '</td>' +
       '<td>' + (r['Open Rate'] ? (parseFloat(r['Open Rate']) * 100).toFixed(1) + '%' : '\u2014') + '</td>' +
       '<td>' + (r['Click Rate'] ? (parseFloat(r['Click Rate']) * 100).toFixed(1) + '%' : '\u2014') + '</td>' +
-      '<td>' + (r['Revenue Attributed'] ? '$' + parseFloat(r['Revenue Attributed']).toFixed(2) : '\u2014') + '</td></tr>';
+      '<td>' + (r['Revenue Attributed'] ? '$' + fmtUSD(r['Revenue Attributed']) : '\u2014') + '</td></tr>';
   }).join('');
 }
 
@@ -1086,7 +1198,7 @@ function renderChannels() {
   document.getElementById('kpi-channels-inv-sub').textContent = 'Total invoices';
   document.getElementById('kpi-channels-cust').textContent = totalCust.toLocaleString();
   document.getElementById('kpi-channels-cust-sub').textContent = 'Unique customers';
-  document.getElementById('kpi-channels-avg').textContent = '$' + avgInv.toFixed(2);
+  document.getElementById('kpi-channels-avg').textContent = '$' + fmtUSD(avgInv);
   document.getElementById('kpi-channels-avg-sub').textContent = 'Weighted average';
 
   // Revenue chart
@@ -1110,8 +1222,43 @@ function renderChannels() {
     return '<tr><td><strong>' + (c['OrderChannel'] || 'Unknown') + '</strong></td>' +
       '<td>' + (c['customer_count'] || '0') + '</td>' +
       '<td>' + (c['total_invoices'] || '0') + '</td>' +
-      '<td>$' + parseFloat(c['total_revenue'] || 0).toFixed(2) + '</td>' +
-      '<td>$' + (parseInt(c['total_invoices'] || 0) > 0 ? (parseFloat(c['total_revenue'] || 0) / parseInt(c['total_invoices'] || 1)).toFixed(2) : '0.00') + '</td></tr>';
+      '<td>$' + fmtUSD(c['total_revenue']) + '</td>' +
+      '<td>$' + (parseInt(c['total_invoices'] || 0) > 0 ? fmtUSD(parseFloat(c['total_revenue'] || 0) / parseInt(c['total_invoices'] || 1)) : '0.00') + '</td></tr>';
+  }).join('');
+}
+
+// =====================================================
+// RENDER: ORDER TYPES
+// =====================================================
+function renderOrderTypes() {
+  if (allOrderTypes.length === 0) {
+    document.getElementById('ordertypes-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No order type data available</td></tr>';
+    return;
+  }
+
+  // Revenue chart (top 10)
+  var sorted = allOrderTypes.slice().sort(function(a, b) { return parseFloat(b['total_revenue'] || 0) - parseFloat(a['total_revenue'] || 0); });
+  var top10 = sorted.slice(0, 10);
+  orderTypesRevenueChart.data.labels = top10.map(function(c) { return c['OrderType'] || 'Unknown'; });
+  orderTypesRevenueChart.data.datasets[0].data = top10.map(function(c) { return parseFloat(c['total_revenue'] || 0); });
+  orderTypesRevenueChart.update();
+
+  // Invoice doughnut (top 10)
+  var colors = [accent, green, blue, orange, '#e056fd', '#ff7979', accent2, '#00b894', '#fd79a8', '#636e72'];
+  var top10inv = sorted.slice(0, 10);
+  orderTypesInvoiceChart.data.labels = top10inv.map(function(c) { return c['OrderType'] || 'Unknown'; });
+  orderTypesInvoiceChart.data.datasets[0].data = top10inv.map(function(c) { return parseInt(c['total_invoices'] || 0); });
+  orderTypesInvoiceChart.data.datasets[0].backgroundColor = top10inv.map(function(_, i) { return colors[i % colors.length]; });
+  orderTypesInvoiceChart.update();
+
+  // Table (all rows)
+  var tbody = document.getElementById('ordertypes-tbody');
+  tbody.innerHTML = sorted.map(function(c) {
+    return '<tr><td><strong>' + (c['OrderType'] || 'Unknown') + '</strong></td>' +
+      '<td>' + parseInt(c['customer_count'] || 0).toLocaleString() + '</td>' +
+      '<td>' + parseInt(c['total_invoices'] || 0).toLocaleString() + '</td>' +
+      '<td>$' + fmtUSD(c['total_revenue']) + '</td>' +
+      '<td>$' + (parseInt(c['total_invoices'] || 0) > 0 ? fmtUSD(parseFloat(c['total_revenue'] || 0) / parseInt(c['total_invoices'] || 1)) : '0.00') + '</td></tr>';
   }).join('');
 }
 
@@ -1157,7 +1304,7 @@ function renderStyles() {
     return '<tr><td><strong>' + (s['style'] || 'Unknown') + '</strong></td>' +
       '<td>' + (s['color'] || '\u2014') + '</td>' +
       '<td>' + (s['OrderChannel'] || '\u2014') + '</td>' +
-      '<td>$' + parseFloat(s['total_revenue'] || 0).toFixed(2) + '</td>' +
+      '<td>$' + fmtUSD(s['total_revenue']) + '</td>' +
       '<td>' + (s['total_quantity'] || '0') + '</td>' +
       '<td>' + (s['invoice_count'] || '0') + '</td></tr>';
   }).join('');
@@ -1221,7 +1368,7 @@ function renderStrategic() {
   var insights = [];
   if (sorted.length > 0) {
     var topMonth = sorted.reduce(function(max, r) { return parseFloat(r['net_revenue'] || 0) > parseFloat(max['net_revenue'] || 0) ? r : max; });
-    insights.push('Best performing month: <strong>' + (topMonth['month'] || 'N/A') + '</strong> with <strong>$' + parseFloat(topMonth['net_revenue'] || 0).toFixed(2) + '</strong> in revenue');
+    insights.push('Best performing month: <strong>' + (topMonth['month'] || 'N/A') + '</strong> with <strong>$' + fmtUSD(topMonth['net_revenue']) + '</strong> in revenue');
   }
   if (momChange !== 0) {
     if (momChange > 0) {
@@ -1232,15 +1379,15 @@ function renderStrategic() {
   }
   if (allChannels.length > 0) {
     var topChannel = allChannels.reduce(function(max, c) { return parseFloat(c['total_revenue'] || 0) > parseFloat(max['total_revenue'] || 0) ? c : max; });
-    insights.push('Top revenue channel: <strong>' + (topChannel['OrderChannel'] || 'Unknown') + '</strong> with <strong>$' + parseFloat(topChannel['total_revenue'] || 0).toFixed(2) + '</strong>');
+    insights.push('Top revenue channel: <strong>' + (topChannel['OrderChannel'] || 'Unknown') + '</strong> with <strong>$' + fmtUSD(topChannel['total_revenue']) + '</strong>');
   }
   if (allStyles.length > 0) {
     var topStyle = allStyles.reduce(function(max, s) { return parseFloat(s['total_revenue'] || 0) > parseFloat(max['total_revenue'] || 0) ? s : max; });
-    insights.push('Top selling style: <strong>' + (topStyle['style'] || 'Unknown') + '</strong> generating <strong>$' + parseFloat(topStyle['total_revenue'] || 0).toFixed(2) + '</strong>');
+    insights.push('Top selling style: <strong>' + (topStyle['style'] || 'Unknown') + '</strong> generating <strong>$' + fmtUSD(topStyle['total_revenue']) + '</strong>');
   }
   if (sorted.length > 1) {
     var avgRev = allExecutive.reduce(function(s, r) { return s + parseFloat(r['net_revenue'] || 0); }, 0) / allExecutive.length;
-    insights.push('Average monthly revenue: <strong>$' + avgRev.toFixed(2) + '</strong> — current month ' + (latestRev > avgRev ? 'above' : 'below') + ' average');
+    insights.push('Average monthly revenue: <strong>$' + fmtUSD(avgRev) + '</strong> — current month ' + (latestRev > avgRev ? 'above' : 'below') + ' average');
   }
 
   var insightsList = insights.length > 0 ? insights.map(function(i, idx) { return '<li>' + i + '</li>'; }).join('') : '<li>Data loaded. Continue monitoring trends.</li>';
@@ -1269,7 +1416,7 @@ function renderHighlights(orders, abandoned) {
   }
   if (totalAbandoned > 0) {
     var abandonedValue = abandoned.reduce(function(s, o) { return s + parseFloat(o['Total Price'] || 0); }, 0);
-    cards += '<div class="insight amber"><div class="i-tag">Opportunity</div><div class="i-txt"><strong>' + totalAbandoned + ' abandoned checkout' + (totalAbandoned > 1 ? 's' : '') + '</strong> worth <strong>$' + abandonedValue.toFixed(2) + '</strong>. Recovery emails could recapture 5\u201315% of this.</div></div>';
+    cards += '<div class="insight amber"><div class="i-tag">Opportunity</div><div class="i-txt"><strong>' + totalAbandoned + ' abandoned checkout' + (totalAbandoned > 1 ? 's' : '') + '</strong> worth <strong>$' + fmtUSD(abandonedValue) + '</strong>. Recovery emails could recapture 5\u201315% of this.</div></div>';
   }
   if (totalProducts > 0) {
     var activeProducts = allProducts.filter(function(p) { return (p['Status'] || '').toUpperCase() === 'ACTIVE'; }).length;
@@ -1319,6 +1466,131 @@ window.addEventListener('scroll', function() {
     }
   });
 }, { passive: true });
+
+// =====================================================
+// AI QUERY
+// =====================================================
+var aiApiKey = '';
+
+function saveAiKey() {
+  var key = document.getElementById('aiApiKey').value.trim();
+  if (!key || !key.startsWith('sk-')) {
+    document.getElementById('aiKeyStatus').textContent = 'Please enter a valid Anthropic API key (starts with sk-)';
+    document.getElementById('aiKeyStatus').style.color = 'var(--red)';
+    return;
+  }
+  aiApiKey = key;
+  document.getElementById('aiKeyStatus').textContent = 'Key saved for this session.';
+  document.getElementById('aiKeyStatus').style.color = 'var(--green)';
+  document.getElementById('aiApiKey').value = '';
+}
+
+function buildDataContext() {
+  var ctx = [];
+  if (allOrders.length > 0) {
+    var rev = allOrders.reduce(function(s,o){return s+parseFloat(o['Total Price']||0);},0);
+    ctx.push('SHOPIFY ORDERS (' + allOrders.length + ' records): Total revenue $' + fmtUSD(rev));
+    ctx.push('Sample fields: ' + Object.keys(allOrders[0]).join(', '));
+  }
+  if (allCustomers.length > 0) ctx.push('CUSTOMERS (' + allCustomers.length + ' total)');
+  if (allAbandoned.length > 0) ctx.push('ABANDONED CHECKOUTS (' + allAbandoned.length + ' records)');
+  if (allProducts.length > 0) ctx.push('PRODUCTS (' + allProducts.length + ' active)');
+  if (allKlaviyo.length > 0) ctx.push('KLAVIYO CAMPAIGNS (' + allKlaviyo.length + ' campaigns)');
+  if (allChannels.length > 0) {
+    ctx.push('ORDER CHANNELS (' + allChannels.length + ' channels):');
+    allChannels.forEach(function(c) {
+      ctx.push('  ' + (c['OrderChannel']||'?') + ': customers=' + c['customer_count'] + ', invoices=' + c['total_invoices'] + ', revenue=$' + fmtUSD(c['total_revenue']) + ', avg=$' + fmtUSD(c['avg_invoice_total']));
+    });
+  }
+  if (allOrderTypes.length > 0) {
+    ctx.push('ORDER TYPES (' + allOrderTypes.length + ' types):');
+    allOrderTypes.slice(0,15).forEach(function(c) {
+      ctx.push('  ' + (c['OrderType']||'?') + ': customers=' + c['customer_count'] + ', invoices=' + c['total_invoices'] + ', revenue=$' + fmtUSD(c['total_revenue']) + ', avg=$' + fmtUSD(c['avg_invoice_total']));
+    });
+    if (allOrderTypes.length > 15) ctx.push('  ... and ' + (allOrderTypes.length - 15) + ' more order types');
+  }
+  if (allStyles.length > 0) {
+    ctx.push('TOP STYLES (' + allStyles.length + ' style/color combos):');
+    allStyles.slice(0,10).forEach(function(s) {
+      ctx.push('  ' + s['style'] + ' (' + s['color'] + ') via ' + s['OrderChannel'] + ': revenue=$' + fmtUSD(s['total_revenue']) + ', qty=' + s['total_quantity']);
+    });
+  }
+  if (allExecutive.length > 0) {
+    ctx.push('MONTHLY EXECUTIVE SUMMARY (' + allExecutive.length + ' months):');
+    allExecutive.forEach(function(e) {
+      ctx.push('  ' + e['month'] + ': invoices=' + e['total_invoices'] + ', customers=' + e['unique_customers'] + ', revenue=$' + fmtUSD(e['net_revenue']) + ', avg=$' + fmtUSD(e['avg_invoice_total']));
+    });
+  }
+  if (allGA4.length > 0) ctx.push('GA4 ANALYTICS (' + allGA4.length + ' daily rows)');
+  if (allGSC.length > 0) ctx.push('SEARCH CONSOLE (' + allGSC.length + ' daily rows)');
+  return ctx.join('\n');
+}
+
+function updateAiDataSummary() {
+  var parts = [];
+  if (allOrders.length > 0) parts.push('Orders: ' + allOrders.length + ' records');
+  if (allCustomers.length > 0) parts.push('Customers: ' + allCustomers.length + ' total');
+  if (allChannels.length > 0) parts.push('Channels: ' + allChannels.length + ' tracked');
+  if (allOrderTypes.length > 0) parts.push('Order Types: ' + allOrderTypes.length + ' tracked');
+  if (allStyles.length > 0) parts.push('Styles: ' + allStyles.length + ' combos');
+  if (allExecutive.length > 0) parts.push('Monthly data: ' + allExecutive.length + ' months');
+  if (allKlaviyo.length > 0) parts.push('Campaigns: ' + allKlaviyo.length);
+  if (allGA4.length > 0) parts.push('GA4: ' + allGA4.length + ' days');
+  if (allGSC.length > 0) parts.push('GSC: ' + allGSC.length + ' days');
+  document.getElementById('aiDataSummary').textContent = parts.length > 0 ? parts.join(' · ') : 'No data loaded yet.';
+}
+
+async function runAiQuery() {
+  var question = document.getElementById('aiInput').value.trim();
+  if (!question) return;
+  if (!aiApiKey) {
+    var resp = document.getElementById('aiResponse');
+    resp.style.display = 'block';
+    resp.innerHTML = 'Please enter your Anthropic API key in the API Key section below, then try again.';
+    return;
+  }
+
+  var resp = document.getElementById('aiResponse');
+  resp.style.display = 'block';
+  resp.innerHTML = '<span class="ai-loading">Analyzing your data with Claude...</span>';
+
+  var dataContext = buildDataContext();
+  var systemPrompt = 'You are a marketing data analyst for Trend Notes (N41), a fashion/apparel B2B brand. You have access to their live dashboard data below. Provide clear, actionable insights. Use specific numbers from the data. Format your response with clear sections. Be concise but thorough.\n\nDASHBOARD DATA:\n' + dataContext;
+
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': aiApiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: question }]
+      })
+    });
+
+    if (!response.ok) {
+      var errData = await response.json().catch(function() { return {}; });
+      throw new Error(errData.error ? errData.error.message : 'API returned status ' + response.status);
+    }
+
+    var data = await response.json();
+    var text = data.content && data.content[0] ? data.content[0].text : 'No response received.';
+    // Basic markdown-like formatting
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    text = text.replace(/^### (.*?)$/gm, '<strong style="font-size:14px;">$1</strong>');
+    text = text.replace(/^## (.*?)$/gm, '<strong style="font-size:15px;">$1</strong>');
+    resp.innerHTML = text;
+  } catch (err) {
+    resp.innerHTML = '<span style="color:var(--red);">Error: ' + err.message + '</span>';
+  }
+}
 
 // =====================================================
 // INIT
