@@ -123,6 +123,12 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
 .data-table strong{font-weight:600}
 
 /* ── Data Note ── */
+/* ── Strategic Analysis ── */
+.analysis-label{font-weight:700;color:var(--green);display:inline}
+.analysis-label.improve{color:var(--orange)}
+.analysis-block{margin-bottom:14px}
+.analysis-block:last-child{margin-bottom:0}
+
 /* ── AI Query ── */
 .ai-section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;margin-top:20px}
 .ai-section h3{font-size:15px;margin-bottom:6px}
@@ -187,6 +193,7 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
   <div class="sb-nav">
     <div class="sb-section">Main</div>
     <div class="sb-item active" data-section="sec-overview"><span class="icon">&#9776;</span> Overview</div>
+    <div class="sb-item" data-section="sec-strategic"><span class="icon">&#128161;</span> Strategic Insights</div>
     <div class="sb-section">Reports</div>
     <div class="sb-item" data-section="sec-shopify"><span class="icon">&#128722;</span> E-Commerce</div>
     <div class="sb-item" data-section="sec-klaviyo"><span class="icon">&#9993;</span> Email Marketing</div>
@@ -195,7 +202,6 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
     <div class="sb-section">BigQuery Analytics</div>
     <div class="sb-item" data-section="sec-channels"><span class="icon">&#128640;</span> Channel Performance</div>
     <div class="sb-item" data-section="sec-styles"><span class="icon">&#128519;</span> Product Analytics</div>
-    <div class="sb-item" data-section="sec-strategic"><span class="icon">&#128161;</span> Strategic Insights</div>
     <div class="sb-section">Tools</div>
     <div class="sb-item" data-section="sec-aiquery"><span class="icon">&#129302;</span> AI Query</div>
   </div>
@@ -253,6 +259,57 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
       <div class="insight green">
         <div class="i-tag">Loading</div>
         <div class="i-txt"><span class="loading-spinner"></span> Fetching live data...</div>
+      </div>
+    </div>
+
+    <!-- Strategic Analysis -->
+    <div class="panel" style="margin-top:20px;" id="strategic-analysis-panel">
+      <div class="panel-title">Strategic Analysis</div>
+      <div class="panel-sub">Last 30 days &middot; auto-generated from live data</div>
+      <div id="strategic-analysis-content" style="font-size:13px;line-height:1.7;padding:8px 0;">
+        <span class="loading-spinner"></span> Analyzing data...
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- STRATEGIC INSIGHTS (BigQuery) -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="section" id="sec-strategic">
+    <div class="section-head">
+      <div>
+        <h2>Strategic Insights<span class="badge-live">LIVE</span></h2>
+        <div class="sub">BigQuery &middot; Monthly trends &amp; analysis</div>
+      </div>
+    </div>
+
+    <div class="kpi-row g4" id="strategic-kpis">
+      <div class="kpi"><div class="k-label">Latest Month Revenue</div><div class="k-value" id="kpi-strategic-rev"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-rev-sub">Latest data</div></div>
+      <div class="kpi"><div class="k-label">MoM Change</div><div class="k-value" id="kpi-strategic-mom"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-mom-sub">Month over month</div></div>
+      <div class="kpi"><div class="k-label">YTD Revenue</div><div class="k-value" id="kpi-strategic-ytd"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-sub">Year to date</div></div>
+      <div class="kpi"><div class="k-label">YTD Invoices</div><div class="k-value" id="kpi-strategic-ytd-inv"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-inv-sub">2025 total</div></div>
+    </div>
+
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-title">Monthly Revenue Trend</div>
+        <div class="panel-sub">Net revenue over time</div>
+        <div style="position:relative;height:200px;"><canvas id="strategicRevenueChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Monthly Invoices Trend</div>
+        <div class="panel-sub">Total invoices by month</div>
+        <div style="position:relative;height:200px;"><canvas id="strategicInvoiceChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">AI Insights</div>
+      <div class="panel-sub">Auto-generated analysis from BigQuery data</div>
+      <div class="focus-card">
+        <ol id="strategic-insights-list">
+          <li><span class="loading-spinner"></span> Analyzing data...</li>
+        </ol>
       </div>
     </div>
   </div>
@@ -508,48 +565,6 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
         <thead><tr><th>Style</th><th>Color</th><th>Channel</th><th>Revenue</th><th>Quantity</th><th>Invoices</th></tr></thead>
         <tbody id="styles-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;"><span class="loading-spinner"></span> Loading...</td></tr></tbody>
       </table>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- STRATEGIC INSIGHTS (BigQuery) -->
-  <!-- ═══════════════════════════════════════════ -->
-  <div class="section" id="sec-strategic">
-    <div class="section-head">
-      <div>
-        <h2>Strategic Insights<span class="badge-live">LIVE</span></h2>
-        <div class="sub">BigQuery &middot; Monthly trends &amp; analysis</div>
-      </div>
-    </div>
-
-    <div class="kpi-row g4" id="strategic-kpis">
-      <div class="kpi"><div class="k-label">Latest Month Revenue</div><div class="k-value" id="kpi-strategic-rev"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-rev-sub">Latest data</div></div>
-      <div class="kpi"><div class="k-label">MoM Change</div><div class="k-value" id="kpi-strategic-mom"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-mom-sub">Month over month</div></div>
-      <div class="kpi"><div class="k-label">YTD Revenue</div><div class="k-value" id="kpi-strategic-ytd"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-sub">Year to date</div></div>
-      <div class="kpi"><div class="k-label">YTD Invoices</div><div class="k-value" id="kpi-strategic-ytd-inv"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-inv-sub">2025 total</div></div>
-    </div>
-
-    <div class="panel-grid-2">
-      <div class="panel">
-        <div class="panel-title">Monthly Revenue Trend</div>
-        <div class="panel-sub">Net revenue over time</div>
-        <div style="position:relative;height:200px;"><canvas id="strategicRevenueChart"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Monthly Invoices Trend</div>
-        <div class="panel-sub">Total invoices by month</div>
-        <div style="position:relative;height:200px;"><canvas id="strategicInvoiceChart"></canvas></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">AI Insights</div>
-      <div class="panel-sub">Auto-generated analysis from BigQuery data</div>
-      <div class="focus-card">
-        <ol id="strategic-insights-list">
-          <li><span class="loading-spinner"></span> Analyzing data...</li>
-        </ol>
-      </div>
     </div>
   </div>
 
@@ -968,6 +983,7 @@ function applyFilter() {
   renderStyles();
   renderStrategic();
   renderHighlights(filteredOrders, filteredAbandoned);
+  renderStrategicAnalysis();
   updateAiDataSummary();
 }
 
@@ -1397,6 +1413,99 @@ function renderStrategic() {
 // =====================================================
 // HIGHLIGHTS
 // =====================================================
+function renderStrategicAnalysis() {
+  var container = document.getElementById('strategic-analysis-content');
+  // Use last 30 days of data
+  var now = new Date();
+  var d30 = new Date(now); d30.setDate(d30.getDate() - 30);
+  var recentOrders = allOrders.filter(function(o) {
+    var d = new Date(o['Created At'] || '');
+    return d >= d30 && d <= now;
+  });
+  var recentAbandoned = allAbandoned.filter(function(o) {
+    var d = new Date(o['Created At'] || '');
+    return d >= d30 && d <= now;
+  });
+
+  var rev30 = recentOrders.reduce(function(s,o){return s+parseFloat(o['Total Price']||0);},0);
+  var orders30 = recentOrders.length;
+  var aov30 = orders30 > 0 ? rev30 / orders30 : 0;
+  var abandoned30 = recentAbandoned.length;
+  var abandonedVal30 = recentAbandoned.reduce(function(s,o){return s+parseFloat(o['Total Price']||0);},0);
+  var customers30 = allCustomers.length;
+  var convRate = customers30 > 0 ? (orders30 / customers30 * 100) : 0;
+
+  // Channel data
+  var webChannels = ['WEB', 'WEBSITE', 'WEBSITE ORDER', 'SHOPIFY', 'WEB ORDER'];
+  var webRev = 0, webInv = 0, totalChRev = 0, totalChInv = 0;
+  var topChannel = '', topChannelRev = 0;
+  allChannels.forEach(function(c) {
+    var r = parseFloat(c['total_revenue'] || 0);
+    var inv = parseInt(c['total_invoices'] || 0);
+    totalChRev += r;
+    totalChInv += inv;
+    if (webChannels.indexOf((c['OrderChannel']||'').toUpperCase()) >= 0) { webRev += r; webInv += inv; }
+    if (r > topChannelRev) { topChannelRev = r; topChannel = c['OrderChannel'] || 'Unknown'; }
+  });
+  var webPct = totalChRev > 0 ? (webRev / totalChRev * 100) : 0;
+
+  // Order type data
+  var webTypes = ['WEB', 'WEBSITE', 'WEBSITE ORDER', 'SHOPIFY', 'WEB ORDER', 'INTERNET'];
+  var webTypeRev = 0;
+  var topType = '', topTypeRev = 0;
+  allOrderTypes.forEach(function(t) {
+    var r = parseFloat(t['total_revenue'] || 0);
+    if (webTypes.indexOf((t['OrderType']||'').toUpperCase()) >= 0) { webTypeRev += r; }
+    if (r > topTypeRev) { topTypeRev = r; topType = t['OrderType'] || 'Unknown'; }
+  });
+
+  // Styles data
+  var topStyle = allStyles.length > 0 ? allStyles.reduce(function(max,s){return parseFloat(s['total_revenue']||0)>parseFloat(max['total_revenue']||0)?s:max;}) : null;
+
+  // Monthly trend (MoM)
+  var momChange = 0;
+  if (allExecutive.length >= 2) {
+    var sorted = allExecutive.slice().sort(function(a,b){return a['month']>b['month']?-1:1;});
+    var latest = parseFloat(sorted[0]['net_revenue']||0);
+    var prev = parseFloat(sorted[1]['net_revenue']||0);
+    momChange = prev > 0 ? ((latest - prev) / prev * 100) : 0;
+  }
+
+  // Klaviyo
+  var avgOpen = 0, avgClick = 0, emailRev = 0;
+  if (allKlaviyo.length > 0) {
+    avgOpen = allKlaviyo.reduce(function(s,r){return s+parseFloat(r['Open Rate']||0);},0) / allKlaviyo.length * 100;
+    avgClick = allKlaviyo.reduce(function(s,r){return s+parseFloat(r['Click Rate']||0);},0) / allKlaviyo.length * 100;
+    emailRev = allKlaviyo.reduce(function(s,r){return s+parseFloat(r['Revenue Attributed']||0);},0);
+  }
+
+  // Build "What's Going Well"
+  var good = [];
+  if (orders30 > 0) good.push('Shopify e-commerce generated $' + fmtUSD(rev30) + ' from ' + orders30 + ' order' + (orders30>1?'s':'') + ' in the last 30 days with an AOV of $' + fmtUSD(aov30));
+  if (webRev > 0) good.push('web/e-commerce channels account for $' + fmtUSD(webRev) + ' (' + webPct.toFixed(1) + '% of total channel revenue), showing digital sales traction');
+  if (topChannel) good.push(topChannel + ' is the top-performing channel at $' + fmtUSD(topChannelRev) + ' in total revenue');
+  if (topStyle) good.push('style ' + topStyle['style'] + ' (' + topStyle['color'] + ') leads product performance with $' + fmtUSD(topStyle['total_revenue']) + ' in revenue');
+  if (momChange > 0) good.push('month-over-month revenue is trending up at +' + momChange.toFixed(1) + '%');
+  if (avgOpen > 20) good.push('email marketing shows strong engagement with a ' + avgOpen.toFixed(1) + '% average open rate');
+  if (customers30 > 0 && convRate > 10) good.push('customer conversion rate sits at ' + convRate.toFixed(1) + '%, indicating solid purchase intent from the existing base');
+  if (good.length === 0) good.push('data is loading — more insights will appear as feeds populate');
+
+  // Build "Strategic Improvements"
+  var improve = [];
+  if (webPct < 20 && totalChRev > 0) improve.push('Web/e-commerce represents only ' + webPct.toFixed(1) + '% of total channel revenue — consider investing in SEO, paid search, and Shopify storefront optimization to grow the direct-to-consumer digital channel');
+  else if (webPct > 0) improve.push('Continue scaling web/e-commerce which currently sits at ' + webPct.toFixed(1) + '% of channel revenue — test targeted landing pages, retargeting campaigns, and conversion rate optimization on the Shopify storefront');
+  if (abandoned30 > 0) improve.push('recover the ' + abandoned30 + ' abandoned checkout' + (abandoned30>1?'s':'') + ' worth $' + fmtUSD(abandonedVal30) + ' by deploying automated Klaviyo recovery flows with a 3-email sequence (1hr, 24hr, 72hr post-abandonment)');
+  if (momChange < 0) improve.push('address the ' + Math.abs(momChange).toFixed(1) + '% month-over-month revenue decline by reviewing channel-specific performance and reallocating spend toward higher-converting channels');
+  if (avgClick > 0 && avgClick < 3) improve.push('email click rates averaging ' + avgClick.toFixed(1) + '% suggest room to improve CTA placement, personalization, and product recommendations in Klaviyo campaigns');
+  if (allOrderTypes.length > 0 && topType) improve.push('with ' + allOrderTypes.length + ' order types tracked, consolidate focus on top performers like ' + topType + ' while evaluating ROI on lower-volume types');
+  if (allGA4.length === 0) improve.push('connect GA4 daily data to unlock traffic source analysis, user behavior insights, and conversion funnel optimization for the web channel');
+  if (improve.length === 0) improve.push('continue monitoring trends as more data accumulates across all channels');
+
+  var html = '<div class="analysis-block"><div class="analysis-label">What\'s Going Well:</div> ' + good.join('; ') + '.</div>';
+  html += '<div class="analysis-block"><div class="analysis-label improve">Strategic Improvements:</div> ' + improve.join('. ').replace(/\.\./g,'.') + '.</div>';
+  container.innerHTML = html;
+}
+
 function renderHighlights(orders, abandoned) {
   var container = document.getElementById('highlights-container');
   var totalRevenue = orders.reduce(function(s, o) { return s + parseFloat(o['Total Price'] || 0); }, 0);
