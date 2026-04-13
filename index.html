@@ -290,19 +290,7 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
       <div class="kpi"><div class="k-label">YTD Invoices</div><div class="k-value" id="kpi-strategic-ytd-inv"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-inv-sub">YTD total</div></div>
     </div>
 
-    <div class="panel-grid-2">
-      <div class="panel">
-        <div class="panel-title">Monthly Revenue Trend</div>
-        <div class="panel-sub">Net revenue over time</div>
-        <div style="position:relative;height:200px;"><canvas id="strategicRevenueChart"></canvas></div>
-      </div>
-      <div class="panel">
-        <div class="panel-title">Monthly Invoices Trend</div>
-        <div class="panel-sub">Total invoices by month</div>
-        <div style="position:relative;height:200px;"><canvas id="strategicInvoiceChart"></canvas></div>
-      </div>
-    </div>
-
+    <!-- AI Insights (moved to top) -->
     <div class="panel">
       <div class="panel-title">AI Insights</div>
       <div class="panel-sub">Auto-generated analysis from BigQuery data</div>
@@ -310,6 +298,46 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
         <ol id="strategic-insights-list">
           <li><span class="loading-spinner"></span> Analyzing data...</li>
         </ol>
+      </div>
+    </div>
+
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-title">Monthly Revenue Trend</div>
+        <div class="panel-sub">Net revenue over time &middot; last 12 months</div>
+        <div style="position:relative;height:200px;"><canvas id="strategicRevenueChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Monthly Invoices Trend</div>
+        <div class="panel-sub">Total invoices by month &middot; last 12 months</div>
+        <div style="position:relative;height:200px;"><canvas id="strategicInvoiceChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- New charts row -->
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-title">New vs Returning Customer Orders</div>
+        <div class="panel-sub">Last 12 months &middot; based on unique customers vs total invoices</div>
+        <div style="position:relative;height:220px;"><canvas id="customerTypePieChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Revenue by Channel</div>
+        <div class="panel-sub">All-time &middot; from BigQuery channel data</div>
+        <div style="position:relative;height:220px;"><canvas id="channelRevenuePieChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel-grid-2">
+      <div class="panel">
+        <div class="panel-title">Avg Invoice Value Trend</div>
+        <div class="panel-sub">Monthly average &middot; last 12 months</div>
+        <div style="position:relative;height:200px;"><canvas id="avgInvoiceChart"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Collection Rate</div>
+        <div class="panel-sub">Revenue billed vs paid &middot; last 12 months</div>
+        <div style="position:relative;height:200px;"><canvas id="collectionRateChart"></canvas></div>
       </div>
     </div>
   </div>
@@ -365,15 +393,6 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
       </table>
     </div>
 
-    <!-- Products Table -->
-    <div class="panel">
-      <div class="panel-title">Product Catalog</div>
-      <div class="panel-sub">Active products &middot; from Shopify</div>
-      <table class="data-table" id="products-table">
-        <thead><tr><th>Product</th><th>Type</th><th>Vendor</th><th>Inventory</th><th>Status</th></tr></thead>
-        <tbody id="products-tbody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;"><span class="loading-spinner"></span> Loading...</td></tr></tbody>
-      </table>
-    </div>
   </div>
 
   <!-- ═══════════════════════════════════════════ -->
@@ -692,7 +711,7 @@ function updateChartTheme() {
   var gridColor = isLight ? '#e5e7eb' : '#2e3247';
   var tickColor = isLight ? '#6b7280' : '#8a8fa8';
   Chart.defaults.color = tickColor;
-  [revenueChart, trafficChart, gscChart, pagesChart, channelsRevenueChart, channelsInvoiceChart, orderTypesRevenueChart, orderTypesInvoiceChart, stylesRevenueChart, strategicRevenueChart, strategicInvoiceChart].forEach(function(c) {
+  [revenueChart, trafficChart, gscChart, pagesChart, channelsRevenueChart, channelsInvoiceChart, orderTypesRevenueChart, orderTypesInvoiceChart, stylesRevenueChart, strategicRevenueChart, strategicInvoiceChart, customerTypePieChart, channelRevenuePieChart, avgInvoiceChart, collectionRateChart].forEach(function(c) {
     if (!c) return;
     Object.values(c.options.scales || {}).forEach(function(s) {
       if (s.grid) s.grid.color = gridColor;
@@ -898,6 +917,44 @@ var strategicInvoiceChart = new Chart(document.getElementById('strategicInvoiceC
     scales: { x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 9 } } }, y: { grid: { color: gridC }, beginAtZero: true } } }
 });
 
+// New vs Returning Customers Pie Chart
+var customerTypePieChart = new Chart(document.getElementById('customerTypePieChart').getContext('2d'), {
+  type: 'doughnut',
+  data: { labels: ['New Customers', 'Returning Customers'], datasets: [{ data: [1, 1], backgroundColor: [accent, green], borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '55%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+      tooltip: { callbacks: { label: function(ctx) { var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0); return ctx.label + ': ' + ctx.raw.toLocaleString() + ' (' + (ctx.raw/total*100).toFixed(1) + '%)'; } } } } }
+});
+
+// Revenue by Channel Pie Chart
+var channelRevenuePieChart = new Chart(document.getElementById('channelRevenuePieChart').getContext('2d'), {
+  type: 'doughnut',
+  data: { labels: ['Loading...'], datasets: [{ data: [1], backgroundColor: [lgray], borderWidth: 0 }] },
+  options: { responsive: true, maintainAspectRatio: false, cutout: '55%',
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } },
+      tooltip: { callbacks: { label: function(ctx) { var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0); return ctx.label + ': $' + ctx.raw.toLocaleString(undefined,{maximumFractionDigits:0}) + ' (' + (ctx.raw/total*100).toFixed(1) + '%)'; } } } } }
+});
+
+// Avg Invoice Value Trend Chart
+var avgInvoiceChart = new Chart(document.getElementById('avgInvoiceChart').getContext('2d'), {
+  type: 'line',
+  data: { labels: [], datasets: [{ label: 'Avg Invoice ($)', data: [], borderColor: orange, backgroundColor: orange+'18', borderWidth: 2, pointRadius: 3, tension: .35, fill: true }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+    scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 10 } } }, y: { grid: { color: gridC }, beginAtZero: false, ticks: { callback: function(v){ return '$'+v.toLocaleString(); } } } } }
+});
+
+// Collection Rate Chart (Revenue vs Paid)
+var collectionRateChart = new Chart(document.getElementById('collectionRateChart').getContext('2d'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: 'Net Revenue', data: [], backgroundColor: accent+'99', borderRadius: 4 },
+    { label: 'Total Paid', data: [], backgroundColor: green+'99', borderRadius: 4 }
+  ] },
+  options: { responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } } },
+    scales: { x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 9 } } }, y: { grid: { color: gridC }, beginAtZero: true, ticks: { callback: function(v){ return '$'+(v/1e6).toFixed(0)+'M'; } } } } }
+});
+
 // =====================================================
 // DATE HELPERS
 // =====================================================
@@ -1018,6 +1075,7 @@ function applyFilter() {
   renderOrderTypes();
   renderStyles();
   renderStrategic();
+  renderStrategicCharts();
   renderHighlights(filteredOrders, filteredAbandoned);
   renderStrategicAnalysis();
   updateAiDataSummary();
@@ -1101,6 +1159,7 @@ function renderCustomers() {
 // =====================================================
 function renderProducts() {
   var tbody = document.getElementById('products-tbody');
+  if (!tbody) return;
   if (allProducts.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No product data available</td></tr>'; return; }
   tbody.innerHTML = allProducts.map(function(p) {
     var status = (p['Status'] || '').toUpperCase();
@@ -1417,9 +1476,9 @@ function renderStylesFromData(data) {
   stylesRevenueChart.data.datasets[0].data = top15.map(function(s) { return parseFloat(s['total_revenue'] || 0); });
   stylesRevenueChart.update();
 
-  // Table - all filtered results (up to 50)
-  var shown = data.slice(0, 50);
-  document.getElementById('styles-table-title').textContent = 'Top Selling Styles (' + Math.min(data.length, 50) + ' of ' + data.length + ')';
+  // Table - top 25 filtered results
+  var shown = data.slice(0, 25);
+  document.getElementById('styles-table-title').textContent = 'Top Selling Styles (' + Math.min(data.length, 25) + ' of ' + data.length + ')';
   var tbody = document.getElementById('styles-tbody');
   if (shown.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No styles match the current filters</td></tr>';
@@ -1547,6 +1606,63 @@ function renderStrategic() {
 
   var insightsList = insights.length > 0 ? insights.map(function(i, idx) { return '<li>' + i + '</li>'; }).join('') : '<li>Data loaded. Continue monitoring trends.</li>';
   document.getElementById('strategic-insights-list').innerHTML = insightsList;
+}
+
+// =====================================================
+// RENDER: NEW STRATEGIC CHARTS
+// =====================================================
+function renderStrategicCharts() {
+  var now = new Date();
+  var cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+  var cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth() + 1).padStart(2, '0');
+  var currentStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+
+  // Filter executive data to last 12 months
+  var last12 = allExecutive.filter(function(r) {
+    var m = r['month'] || '';
+    return m >= cutoffStr && m <= currentStr;
+  }).sort(function(a, b) { return (b['month'] || '').localeCompare(a['month'] || ''); });
+
+  // ── New vs Returning Customers Pie Chart ──
+  if (last12.length > 0) {
+    var totalInvoices12 = last12.reduce(function(s, r) { return s + parseInt(r['total_invoices'] || 0); }, 0);
+    var uniqueCustomers12 = last12.reduce(function(s, r) { return s + parseInt(r['unique_customers'] || 0); }, 0);
+    // Repeat orders = total invoices - unique customers (proxy: if customer ordered more than once)
+    var returningOrders = Math.max(0, totalInvoices12 - uniqueCustomers12);
+    var newOrders = uniqueCustomers12;
+    customerTypePieChart.data.labels = [
+      'New Customer Orders (' + newOrders.toLocaleString() + ')',
+      'Returning Customer Orders (' + returningOrders.toLocaleString() + ')'
+    ];
+    customerTypePieChart.data.datasets[0].data = [newOrders, returningOrders];
+    customerTypePieChart.update();
+  }
+
+  // ── Revenue by Channel Pie Chart ──
+  if (allChannels.length > 0) {
+    var COLORS = ['#6c5ce7','#00cec9','#ff6b6b','#fdcb6e','#74b9ff','#a29bfe','#55efc4','#fab1a0','#81ecec','#dfe6e9'];
+    var sortedChannels = allChannels.slice().sort(function(a, b) { return parseFloat(b['total_revenue'] || 0) - parseFloat(a['total_revenue'] || 0); });
+    var topChannels = sortedChannels.slice(0, 8);
+    channelRevenuePieChart.data.labels = topChannels.map(function(c) { return c['OrderChannel'] || 'Unknown'; });
+    channelRevenuePieChart.data.datasets[0].data = topChannels.map(function(c) { return parseFloat(c['total_revenue'] || 0); });
+    channelRevenuePieChart.data.datasets[0].backgroundColor = COLORS.slice(0, topChannels.length);
+    channelRevenuePieChart.update();
+  }
+
+  // ── Avg Invoice Value Trend ──
+  if (last12.length > 0) {
+    avgInvoiceChart.data.labels = last12.map(function(r) { return r['month'] || ''; });
+    avgInvoiceChart.data.datasets[0].data = last12.map(function(r) { return parseFloat(r['avg_invoice_total'] || 0); });
+    avgInvoiceChart.update();
+  }
+
+  // ── Collection Rate (Revenue vs Paid) ──
+  if (last12.length > 0) {
+    collectionRateChart.data.labels = last12.map(function(r) { return r['month'] || ''; });
+    collectionRateChart.data.datasets[0].data = last12.map(function(r) { return parseFloat(r['net_revenue'] || 0); });
+    collectionRateChart.data.datasets[1].data = last12.map(function(r) { return parseFloat(r['total_paid'] || 0); });
+    collectionRateChart.update();
+  }
 }
 
 // =====================================================
