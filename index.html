@@ -201,7 +201,7 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
     <div class="sb-item" data-section="sec-gsc"><span class="icon">&#128270;</span> Search Console</div>
     <div class="sb-section">BigQuery Analytics</div>
     <div class="sb-item" data-section="sec-channels"><span class="icon">&#128640;</span> Channel Performance</div>
-    <div class="sb-item" data-section="sec-styles"><span class="icon">&#128519;</span> Product Analytics</div>
+    <div class="sb-item" data-section="sec-styles"><span class="icon">&#128519;</span> Top Selling Styles</div>
     <div class="sb-section">Tools</div>
     <div class="sb-item" data-section="sec-aiquery"><span class="icon">&#129302;</span> AI Query</div>
   </div>
@@ -287,7 +287,7 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
       <div class="kpi"><div class="k-label">Latest Month Revenue</div><div class="k-value" id="kpi-strategic-rev"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-rev-sub">Latest data</div></div>
       <div class="kpi"><div class="k-label">MoM Change</div><div class="k-value" id="kpi-strategic-mom"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-mom-sub">Month over month</div></div>
       <div class="kpi"><div class="k-label">YTD Revenue</div><div class="k-value" id="kpi-strategic-ytd"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-sub">Year to date</div></div>
-      <div class="kpi"><div class="k-label">YTD Invoices</div><div class="k-value" id="kpi-strategic-ytd-inv"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-inv-sub">2025 total</div></div>
+      <div class="kpi"><div class="k-label">YTD Invoices</div><div class="k-value" id="kpi-strategic-ytd-inv"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-strategic-ytd-inv-sub">YTD total</div></div>
     </div>
 
     <div class="panel-grid-2">
@@ -540,29 +540,65 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
   <div class="section" id="sec-styles">
     <div class="section-head">
       <div>
-        <h2>Product Analytics<span class="badge-live">LIVE</span></h2>
-        <div class="sub">BigQuery &middot; Top selling styles &amp; colors</div>
+        <h2>Top Selling Styles<span class="badge-live">LIVE</span></h2>
+        <div class="sub">BigQuery &middot; Active styles sorted by revenue</div>
       </div>
     </div>
 
     <div class="kpi-row g4" id="styles-kpis">
       <div class="kpi"><div class="k-label">Top Style</div><div class="k-value" id="kpi-styles-top"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-styles-top-sub">By revenue</div></div>
       <div class="kpi"><div class="k-label">Total Styles</div><div class="k-value" id="kpi-styles-count"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-styles-count-sub">Unique styles</div></div>
-      <div class="kpi"><div class="k-label">Total Revenue</div><div class="k-value" id="kpi-styles-rev"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-styles-rev-sub">All styles</div></div>
+      <div class="kpi"><div class="k-label">Total Revenue</div><div class="k-value" id="kpi-styles-rev"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-styles-rev-sub">Filtered styles</div></div>
       <div class="kpi"><div class="k-label">Units Sold</div><div class="k-value" id="kpi-styles-qty"><span class="loading-spinner"></span></div><div class="k-sub" id="kpi-styles-qty-sub">Total quantity</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="panel" style="padding:16px 20px;">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">Search Style</label>
+          <input type="text" id="styles-filter-search" placeholder="e.g. DP790" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:140px;">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">Channel</label>
+          <select id="styles-filter-channel" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:140px;">
+            <option value="">All Channels</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">Season</label>
+          <select id="styles-filter-season" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:140px;">
+            <option value="">All Seasons</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">Sort By</label>
+          <select id="styles-sort" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:13px;width:140px;">
+            <option value="revenue">Revenue (High→Low)</option>
+            <option value="quantity">Units Sold (High→Low)</option>
+            <option value="invoices">Invoices (High→Low)</option>
+            <option value="style">Style Name (A→Z)</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <label style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;">&nbsp;</label>
+          <button onclick="applyStylesFilter()" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:6px;font-size:13px;cursor:pointer;font-weight:600;">Apply</button>
+        </div>
+      </div>
+      <div id="styles-filter-summary" style="font-size:11px;color:var(--muted);margin-top:10px;"></div>
     </div>
 
     <div class="panel">
       <div class="panel-title">Top 15 Styles by Revenue</div>
-      <div class="panel-sub">BigQuery styles extract</div>
+      <div class="panel-sub">Filtered results</div>
       <div style="position:relative;height:280px;"><canvas id="stylesRevenueChart"></canvas></div>
     </div>
 
     <div class="panel">
-      <div class="panel-title">Top 20 Selling Styles</div>
-      <div class="panel-sub">From BigQuery Extract 2</div>
+      <div class="panel-title" id="styles-table-title">Top Selling Styles</div>
+      <div class="panel-sub" id="styles-table-sub">Sorted by revenue</div>
       <table class="data-table" id="styles-table">
-        <thead><tr><th>Style</th><th>Color</th><th>Channel</th><th>Revenue</th><th>Quantity</th><th>Invoices</th></tr></thead>
+        <thead><tr><th style="cursor:pointer;" onclick="sortStylesTable('style')">Style &#8597;</th><th>Color</th><th>Channel</th><th style="cursor:pointer;" onclick="sortStylesTable('revenue')">Revenue &#8597;</th><th style="cursor:pointer;" onclick="sortStylesTable('quantity')">Units &#8597;</th><th style="cursor:pointer;" onclick="sortStylesTable('invoices')">Invoices &#8597;</th></tr></thead>
         <tbody id="styles-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;"><span class="loading-spinner"></span> Loading...</td></tr></tbody>
       </table>
     </div>
@@ -615,7 +651,7 @@ html.light .toggle-thumb{transform:translateX(16px);background:var(--accent)}
 
   <!-- Data Note -->
   <div class="data-note">
-    <strong>Live data sources:</strong> Shopify Orders, Customers, Products, and Abandoned Checkouts are fetched live from Google Sheets on every page load. Klaviyo campaign data updates automatically when new campaigns are sent. BigQuery extracts (Channel Performance, Product Analytics, Strategic Insights) are updated daily from the data warehouse.
+    <strong>Live data sources:</strong> Shopify Orders, Customers, Products, and Abandoned Checkouts are fetched live from Google Sheets on every page load. Klaviyo campaign data updates automatically when new campaigns are sent. BigQuery extracts (Channel Performance, Top Selling Styles, Strategic Insights) are updated daily from the data warehouse.
     <br><strong>Pending feeds:</strong> GA4 and GSC sections will go live once their Apps Script feeds populate the <code>GA4_Daily</code> and <code>GSC_Daily</code> tabs in the data sheet.
   </div>
 
@@ -839,7 +875,7 @@ var orderTypesInvoiceChart = new Chart(document.getElementById('orderTypesInvoic
     plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10 } } } }
 });
 
-// Product Analytics Chart
+// Top Selling Styles Chart
 var stylesRevenueChart = new Chart(document.getElementById('stylesRevenueChart').getContext('2d'), {
   type: 'bar',
   data: { labels: [], datasets: [{ label: 'Revenue ($)', data: [], backgroundColor: green, borderRadius: 4 }] },
@@ -1279,8 +1315,129 @@ function renderOrderTypes() {
 }
 
 // =====================================================
-// RENDER: PRODUCT ANALYTICS
+// RENDER: TOP SELLING STYLES (with filters)
 // =====================================================
+var currentStylesSort = 'revenue';
+var currentStylesSortDir = 'desc';
+
+function initStylesFilters() {
+  if (allStyles.length === 0) return;
+  // Populate channel dropdown
+  var channels = [...new Set(allStyles.map(function(s) { return s['OrderChannel'] || ''; }).filter(Boolean))].sort();
+  var channelSelect = document.getElementById('styles-filter-channel');
+  channelSelect.innerHTML = '<option value="">All Channels</option>' + channels.map(function(c) { return '<option value="' + c + '">' + c + '</option>'; }).join('');
+
+  // Parse seasons from style names (e.g. DP790-25 → Season 25)
+  var seasons = [...new Set(allStyles.map(function(s) {
+    var m = (s['style'] || '').match(/-(\d{2})$/);
+    return m ? m[1] : '';
+  }).filter(Boolean))].sort().reverse();
+  var seasonSelect = document.getElementById('styles-filter-season');
+  seasonSelect.innerHTML = '<option value="">All Seasons</option>' + seasons.map(function(sn) { return '<option value="' + sn + '">Season ' + sn + '</option>'; }).join('');
+
+  // Auto-apply on change
+  ['styles-filter-search', 'styles-filter-channel', 'styles-filter-season', 'styles-sort'].forEach(function(id) {
+    document.getElementById(id).addEventListener('change', applyStylesFilter);
+  });
+  document.getElementById('styles-filter-search').addEventListener('input', applyStylesFilter);
+}
+
+function getFilteredStyles() {
+  var search = (document.getElementById('styles-filter-search').value || '').toUpperCase().trim();
+  var channel = document.getElementById('styles-filter-channel').value;
+  var season = document.getElementById('styles-filter-season').value;
+  var sortBy = document.getElementById('styles-sort').value;
+
+  var filtered = allStyles.filter(function(s) {
+    // Only active styles (those with revenue > 0 and quantity > 0)
+    if (parseFloat(s['total_revenue'] || 0) <= 0 || parseInt(s['total_quantity'] || 0) <= 0) return false;
+    if (search && (s['style'] || '').toUpperCase().indexOf(search) === -1 && (s['color'] || '').toUpperCase().indexOf(search) === -1) return false;
+    if (channel && (s['OrderChannel'] || '') !== channel) return false;
+    if (season) {
+      var m = (s['style'] || '').match(/-(\d{2})$/);
+      if (!m || m[1] !== season) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort(function(a, b) {
+    switch(sortBy) {
+      case 'quantity': return parseInt(b['total_quantity'] || 0) - parseInt(a['total_quantity'] || 0);
+      case 'invoices': return parseInt(b['invoice_count'] || 0) - parseInt(a['invoice_count'] || 0);
+      case 'style': return (a['style'] || '').localeCompare(b['style'] || '');
+      default: return parseFloat(b['total_revenue'] || 0) - parseFloat(a['total_revenue'] || 0);
+    }
+  });
+  return filtered;
+}
+
+function applyStylesFilter() {
+  var filtered = getFilteredStyles();
+  renderStylesFromData(filtered);
+}
+
+function sortStylesTable(col) {
+  var sortMap = {style:'style', revenue:'revenue', quantity:'quantity', invoices:'invoices'};
+  var sortSelect = document.getElementById('styles-sort');
+  sortSelect.value = sortMap[col] || 'revenue';
+  applyStylesFilter();
+}
+
+function renderStylesFromData(data) {
+  var totalRev = data.reduce(function(s, st) { return s + parseFloat(st['total_revenue'] || 0); }, 0);
+  var totalQty = data.reduce(function(s, st) { return s + parseInt(st['total_quantity'] || 0); }, 0);
+  var uniqueStyles = new Set(data.map(function(st) { return st['style']; })).size;
+  var topStyle = data.length > 0 ? data[0]['style'] : 'N/A';
+
+  document.getElementById('kpi-styles-top').textContent = topStyle;
+  document.getElementById('kpi-styles-top-sub').textContent = 'By ' + (document.getElementById('styles-sort').value || 'revenue');
+  document.getElementById('kpi-styles-count').textContent = uniqueStyles.toLocaleString();
+  document.getElementById('kpi-styles-count-sub').textContent = data.length + ' combos';
+  document.getElementById('kpi-styles-rev').textContent = '$' + totalRev.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('kpi-styles-rev-sub').textContent = 'Filtered total';
+  document.getElementById('kpi-styles-qty').textContent = totalQty.toLocaleString();
+  document.getElementById('kpi-styles-qty-sub').textContent = 'Total quantity';
+
+  // Summary
+  var parts = [];
+  var ch = document.getElementById('styles-filter-channel').value;
+  var sn = document.getElementById('styles-filter-season').value;
+  var sq = document.getElementById('styles-filter-search').value;
+  if (ch) parts.push('Channel: ' + ch);
+  if (sn) parts.push('Season: ' + sn);
+  if (sq) parts.push('Search: "' + sq + '"');
+  document.getElementById('styles-filter-summary').textContent = parts.length > 0
+    ? 'Showing ' + data.length + ' results — ' + parts.join(' | ')
+    : 'Showing all ' + data.length + ' active style/color combos';
+
+  // Chart - top 15
+  var top15 = data.slice(0, 15);
+  stylesRevenueChart.data.labels = top15.map(function(s) { return (s['style'] || '?').substring(0, 20); });
+  stylesRevenueChart.data.datasets[0].data = top15.map(function(s) { return parseFloat(s['total_revenue'] || 0); });
+  stylesRevenueChart.update();
+
+  // Table - all filtered results (up to 50)
+  var shown = data.slice(0, 50);
+  document.getElementById('styles-table-title').textContent = 'Top Selling Styles (' + Math.min(data.length, 50) + ' of ' + data.length + ')';
+  var tbody = document.getElementById('styles-tbody');
+  if (shown.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No styles match the current filters</td></tr>';
+    return;
+  }
+  tbody.innerHTML = shown.map(function(s) {
+    var seasonTag = '';
+    var sm = (s['style'] || '').match(/-(\d{2})$/);
+    if (sm) seasonTag = '<span style="font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:4px;">S' + sm[1] + '</span>';
+    return '<tr><td><strong>' + (s['style'] || 'Unknown') + '</strong>' + seasonTag + '</td>' +
+      '<td>' + (s['color'] || '\u2014') + '</td>' +
+      '<td>' + (s['OrderChannel'] || '\u2014') + '</td>' +
+      '<td>$' + fmtUSD(s['total_revenue']) + '</td>' +
+      '<td>' + parseInt(s['total_quantity'] || 0).toLocaleString() + '</td>' +
+      '<td>' + parseInt(s['invoice_count'] || 0).toLocaleString() + '</td></tr>';
+  }).join('');
+}
+
 function renderStyles() {
   if (allStyles.length === 0) {
     document.getElementById('kpi-styles-top').textContent = '\u2014';
@@ -1290,40 +1447,8 @@ function renderStyles() {
     document.getElementById('styles-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px;">No style data available</td></tr>';
     return;
   }
-
-  var totalRev = allStyles.reduce(function(s, st) { return s + parseFloat(st['total_revenue'] || 0); }, 0);
-  var totalQty = allStyles.reduce(function(s, st) { return s + parseInt(st['total_quantity'] || 0); }, 0);
-  var uniqueStyles = new Set(allStyles.map(function(st) { return st['style']; })).size;
-
-  var sortedByRev = allStyles.slice().sort(function(a, b) { return parseFloat(b['total_revenue'] || 0) - parseFloat(a['total_revenue'] || 0); });
-  var topStyle = sortedByRev.length > 0 ? sortedByRev[0]['style'] : 'N/A';
-
-  document.getElementById('kpi-styles-top').textContent = topStyle;
-  document.getElementById('kpi-styles-top-sub').textContent = 'By revenue';
-  document.getElementById('kpi-styles-count').textContent = uniqueStyles.toLocaleString();
-  document.getElementById('kpi-styles-count-sub').textContent = 'Unique styles';
-  document.getElementById('kpi-styles-rev').textContent = '$' + totalRev.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('kpi-styles-rev-sub').textContent = 'All styles';
-  document.getElementById('kpi-styles-qty').textContent = totalQty.toLocaleString();
-  document.getElementById('kpi-styles-qty-sub').textContent = 'Total quantity';
-
-  // Top 15 by revenue chart
-  var top15 = sortedByRev.slice(0, 15);
-  stylesRevenueChart.data.labels = top15.map(function(s) { return (s['style'] || 'Unknown').substring(0, 20); });
-  stylesRevenueChart.data.datasets[0].data = top15.map(function(s) { return parseFloat(s['total_revenue'] || 0); });
-  stylesRevenueChart.update();
-
-  // Table - top 20
-  var top20 = sortedByRev.slice(0, 20);
-  var tbody = document.getElementById('styles-tbody');
-  tbody.innerHTML = top20.map(function(s) {
-    return '<tr><td><strong>' + (s['style'] || 'Unknown') + '</strong></td>' +
-      '<td>' + (s['color'] || '\u2014') + '</td>' +
-      '<td>' + (s['OrderChannel'] || '\u2014') + '</td>' +
-      '<td>$' + fmtUSD(s['total_revenue']) + '</td>' +
-      '<td>' + (s['total_quantity'] || '0') + '</td>' +
-      '<td>' + (s['invoice_count'] || '0') + '</td></tr>';
-  }).join('');
+  initStylesFilters();
+  applyStylesFilter();
 }
 
 // =====================================================
@@ -1354,8 +1479,10 @@ function renderStrategic() {
   var prevRev = previous ? parseFloat(previous['net_revenue'] || 0) : latestRev;
 
   var momChange = prevRev > 0 ? ((latestRev - prevRev) / prevRev * 100) : 0;
-  var ytdRev = allExecutive.reduce(function(s, r) { return s + parseFloat(r['net_revenue'] || 0); }, 0);
-  var ytdInv = allExecutive.reduce(function(s, r) { return s + parseInt(r['total_invoices'] || 0); }, 0);
+  var currentYear = new Date().getFullYear().toString();
+  var ytdData = allExecutive.filter(function(r) { return (r['month'] || '').startsWith(currentYear + '-'); });
+  var ytdRev = ytdData.reduce(function(s, r) { return s + parseFloat(r['net_revenue'] || 0); }, 0);
+  var ytdInv = ytdData.reduce(function(s, r) { return s + parseInt(r['total_invoices'] || 0); }, 0);
 
   document.getElementById('kpi-strategic-rev').textContent = '$' + latestRev.toLocaleString('en-US', {minimumFractionDigits:2});
   document.getElementById('kpi-strategic-rev-sub').textContent = 'Latest: ' + (latest['month'] || 'N/A');
@@ -1368,16 +1495,28 @@ function renderStrategic() {
   document.getElementById('kpi-strategic-ytd').textContent = '$' + ytdRev.toLocaleString('en-US', {minimumFractionDigits:2});
   document.getElementById('kpi-strategic-ytd-sub').textContent = 'Year to date';
   document.getElementById('kpi-strategic-ytd-inv').textContent = ytdInv.toLocaleString();
-  document.getElementById('kpi-strategic-ytd-inv-sub').textContent = '2025 total';
+  document.getElementById('kpi-strategic-ytd-inv-sub').textContent = currentYear + ' YTD';
 
-  // Line chart - monthly revenue
-  strategicRevenueChart.data.labels = sorted.map(function(r) { return r['month'] || ''; });
-  strategicRevenueChart.data.datasets[0].data = sorted.map(function(r) { return parseFloat(r['net_revenue'] || 0); });
+  // Filter to last 12 months (e.g. if now is 2026-04, show 2025-04 through 2026-04)
+  var now = new Date();
+  var cutoffDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+  var cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth() + 1).padStart(2, '0');
+  var currentStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  var chartData = sorted.filter(function(r) {
+    var m = r['month'] || '';
+    return m >= cutoffStr && m <= currentStr;
+  }).sort(function(a, b) {
+    return (b['month'] || '').localeCompare(a['month'] || '');
+  });
+
+  // Line chart - monthly revenue (last 12 months, descending)
+  strategicRevenueChart.data.labels = chartData.map(function(r) { return r['month'] || ''; });
+  strategicRevenueChart.data.datasets[0].data = chartData.map(function(r) { return parseFloat(r['net_revenue'] || 0); });
   strategicRevenueChart.update();
 
-  // Bar chart - monthly invoices
-  strategicInvoiceChart.data.labels = sorted.map(function(r) { return r['month'] || ''; });
-  strategicInvoiceChart.data.datasets[0].data = sorted.map(function(r) { return parseInt(r['total_invoices'] || 0); });
+  // Bar chart - monthly invoices (last 12 months, descending)
+  strategicInvoiceChart.data.labels = chartData.map(function(r) { return r['month'] || ''; });
+  strategicInvoiceChart.data.datasets[0].data = chartData.map(function(r) { return parseInt(r['total_invoices'] || 0); });
   strategicInvoiceChart.update();
 
   // AI Insights
